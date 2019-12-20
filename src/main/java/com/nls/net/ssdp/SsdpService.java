@@ -86,7 +86,8 @@ public class SsdpService implements Closeable, AutoCloseable {
                     for (SsdpPacket packet : selector.receive()) {
                         listener.received(packet);
                     }
-                } catch (IOException ignore) {
+                // not only IOExcption, java.nio.channels.ClosedSelectorException                    
+                } catch (Throwable ignore) {
                 }
             }
         }
