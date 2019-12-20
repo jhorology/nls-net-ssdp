@@ -2,6 +2,8 @@ package com.nls.net.ssdp;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketAddress;
@@ -9,6 +11,7 @@ import java.net.StandardProtocolFamily;
 import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.util.Enumeration;
 import java.util.List;
 
 public class SsdpChannel implements Closeable, AutoCloseable {
@@ -26,7 +29,16 @@ public class SsdpChannel implements Closeable, AutoCloseable {
 
     public SsdpChannel(NetworkInterface networkIf, SsdpSelector selector) throws IOException {
         this.selector = selector;
-        this.unicastChannel = createChannel(networkIf, new InetSocketAddress(networkIf.getInetAddresses().nextElement(), 0), selector);
+        InetAddress unicastAddress = null;
+        Enumeration<InetAddress> e = networkIf.getInetAddresses();
+        while (e.hasMoreElements()) {
+            InetAddress addr = e.nextElement();
+            if (addr instanceof Inet4Address && addr.isLinkLocalAddress()) {
+                unicastAddress = addr;
+                break;
+            }
+        }
+        this.unicastChannel = createChannel(networkIf, new InetSocketAddress(unicastAddress, 0), selector);
         this.multicastChannel = createChannel(networkIf, new InetSocketAddress(SSDP_MCAST_ADDRESS.getPort()), selector);
     }
 
