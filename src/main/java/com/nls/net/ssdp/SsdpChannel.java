@@ -33,7 +33,7 @@ public class SsdpChannel implements Closeable, AutoCloseable {
         Enumeration<InetAddress> e = networkIf.getInetAddresses();
         while (e.hasMoreElements()) {
             InetAddress addr = e.nextElement();
-            if (addr instanceof Inet4Address && addr.isLinkLocalAddress()) {
+            if (addr instanceof Inet4Address && addr.isSiteLocalAddress()) {
                 unicastAddress = addr;
                 break;
             }
